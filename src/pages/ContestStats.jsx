@@ -129,7 +129,7 @@ function ContestStats() {
       setTotalCount(0);
       let allScores = [];
       const usernames = excelData.map(row => row.username);
-      const batchSize = 50; // You can adjust this size
+      const batchSize = 15; // You can adjust this size
       let batchCount = Math.ceil(usernames.length / batchSize);
       let batchResults = [];
       for (let i = 0; i < batchCount; i++) {
