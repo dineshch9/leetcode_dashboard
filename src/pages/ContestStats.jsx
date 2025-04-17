@@ -124,16 +124,44 @@ function ContestStats() {
     try {
       setLoading(true);
       setError(null);
-
+      setScores([]);
+      setActiveCount(0);
+      setTotalCount(0);
+      let allScores = [];
       const usernames = excelData.map(row => row.username);
-      const response = await axios.post('https://leetcode-server-seven.vercel.app/api/users/scores', { usernames });
-      // response.data: { total, active, scores }
-      const { scores: scoreArr } = response.data;
+      const batchSize = 50; // You can adjust this size
+      let batchCount = Math.ceil(usernames.length / batchSize);
+      let batchResults = [];
+      for (let i = 0; i < batchCount; i++) {
+        const batch = usernames.slice(i * batchSize, (i + 1) * batchSize);
+        // Show progress toast
+        toast({
+          title: `Processing batch ${i + 1} of ${batchCount}`,
+          status: 'info',
+          duration: 1500,
+          isClosable: true,
+        });
+        try {
+          const response = await axios.post('https://leetcode-server-seven.vercel.app/api/users/scores', { usernames: batch });
+          if (response.data && response.data.scores) {
+            batchResults = batchResults.concat(response.data.scores);
+          }
+        } catch (err) {
+          // If a batch fails, continue with others
+          toast({
+            title: `Batch ${i + 1} failed`,
+            description: err.message,
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      }
       // Only count valid users for stats
-      const validUsers = scoreArr.filter(u => !u.userNotFound && typeof u.customScore === 'number');
+      const validUsers = batchResults.filter(u => !u.userNotFound && typeof u.customScore === 'number');
       setActiveCount(validUsers.filter(u => u.isActive).length);
       setTotalCount(validUsers.length);
-      const rankedScores = scoreArr
+      const rankedScores = batchResults
         .sort((a, b) => {
           if (a.userNotFound && !b.userNotFound) return 1;
           if (!a.userNotFound && b.userNotFound) return -1;
@@ -145,7 +173,6 @@ function ContestStats() {
           rank: !user.userNotFound ? (arr.slice(0, index+1).filter(u => !u.userNotFound).length) : '-',
           name: excelData.find(row => row.username === user.username)?.name || 'N/A'
         }));
-
       setScores(rankedScores);
       computeStatsAndDist(rankedScores);
       toast({
