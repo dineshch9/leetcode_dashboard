@@ -21,6 +21,7 @@ import {
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Line, ReferenceLine, LineChart } from 'recharts';
+import { FaDownload } from 'react-icons/fa';
 
 function ContestStats() {
   const [scores, setScores] = useState([]);
@@ -118,6 +119,34 @@ function ContestStats() {
     }
   };
 
+  const handleExportToExcel = () => {
+    if (!scores.length) return;
+    
+    const exportData = scores.map(user => ({
+      Rank: user.rank,
+      Name: user.name,
+      Username: user.username,
+      Score: user.userNotFound ? 'User Not Found' : user.customScore,
+      'Hard Problems': user.userNotFound ? '-' : user.hardSolved,
+      'Medium Problems': user.userNotFound ? '-' : user.mediumSolved,
+      'Easy Problems': user.userNotFound ? '-' : user.easySolved,
+      'Recent Active Date': user.userNotFound ? 'User Not Found' : (user.recentActiveDate || 'NA')
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Rankings');
+    XLSX.writeFile(wb, 'leetcode_rankings.xlsx');
+
+    toast({
+      title: 'Success',
+      description: 'Rankings exported to Excel successfully',
+      status: 'success',
+      duration: 3000,
+      isClosable: true,
+    });
+  };
+
   const handleSubmit = async () => {
     if (!excelData) return;
 
@@ -143,7 +172,15 @@ function ContestStats() {
         });
         try {
           const response = await axios.post('https://leetcode-server-seven.vercel.app/api/users/scores', { usernames: batch });
+        
+          // Extract problem counts from the response
           if (response.data && response.data.scores) {
+            response.data.scores = response.data.scores.map(user => ({
+              ...user,
+              hardSolved: user.problemsSolved?.hard || 0,
+              mediumSolved: user.problemsSolved?.medium || 0,
+              easySolved: user.problemsSolved?.easy || 0
+            }));
             batchResults = batchResults.concat(response.data.scores);
           }
         } catch (err) {
@@ -224,6 +261,16 @@ function ContestStats() {
           >
             Submit
           </Button>
+          {scores.length > 0 && (
+            <Button
+              leftIcon={<FaDownload />}
+              colorScheme="green"
+              onClick={handleExportToExcel}
+              disabled={loading}
+            >
+              Export to Excel
+            </Button>
+          )}
         </HStack>
         {totalCount > 0 && (
           <Box mb={4}>
@@ -336,6 +383,9 @@ function ContestStats() {
               <Th>Name</Th>
               <Th>Username</Th>
               <Th isNumeric>Score</Th>
+              <Th isNumeric>Hard</Th>
+              <Th isNumeric>Medium</Th>
+              <Th isNumeric>Easy</Th>
               <Th>Recent Active Date</Th>
             </Tr>
           </Thead>
@@ -346,6 +396,9 @@ function ContestStats() {
                 <Td>{user.name}</Td>
                 <Td>{user.username}</Td>
                 <Td isNumeric>{user.userNotFound ? 'User Not Found' : user.customScore}</Td>
+                <Td isNumeric>{user.userNotFound ? '-' : user.hardSolved}</Td>
+                <Td isNumeric>{user.userNotFound ? '-' : user.mediumSolved}</Td>
+                <Td isNumeric>{user.userNotFound ? '-' : user.easySolved}</Td>
                 <Td>{user.userNotFound ? 'User Not Found' : (user.recentActiveDate || 'NA')}</Td>
               </Tr>
             ))}

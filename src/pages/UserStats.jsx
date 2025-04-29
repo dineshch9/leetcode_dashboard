@@ -28,6 +28,7 @@ function UserStats() {
         setLoading(true);
         setError(null);
         const response = await axios.get(`https://leetcode-server-seven.vercel.app/api/user/${username}`);
+        
         setCustomScore(response.data.customScore);
         setRecentActiveDate(response.data.recentActiveDate || 'NA');
       } catch (err) {
