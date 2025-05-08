@@ -135,6 +135,7 @@ function ContestStats() {
       Name: user.name,
       Username: user.username,
       Score: user.userNotFound ? 'User Not Found' : user.customScore,
+      'Profile URL': `https://leetcode.com/u/${user.username}/`,
       'Hard Problems': user.userNotFound ? '-' : user.hardSolved,
       'Medium Problems': user.userNotFound ? '-' : user.mediumSolved,
       'Easy Problems': user.userNotFound ? '-' : user.easySolved,
@@ -391,6 +392,7 @@ function ContestStats() {
               <Th>Rank</Th>
               <Th>Name</Th>
               <Th>Username</Th>
+              <Th>Profile</Th>
               <Th isNumeric>Score</Th>
               <Th isNumeric>Hard</Th>
               <Th isNumeric>Medium</Th>
@@ -404,6 +406,11 @@ function ContestStats() {
                 <Td>{user.rank}</Td>
                 <Td>{user.name}</Td>
                 <Td>{user.username}</Td>
+                <Td>
+                  <a href={`https://leetcode.com/u/${user.username}/`} target="_blank" rel="noopener noreferrer" style={{ color: '#3182ce', textDecoration: 'underline' }}>
+                    View Profile
+                  </a>
+                </Td>
                 <Td isNumeric>{user.userNotFound ? 'User Not Found' : user.customScore}</Td>
                 <Td isNumeric>{user.userNotFound ? '-' : user.hardSolved}</Td>
                 <Td isNumeric>{user.userNotFound ? '-' : user.mediumSolved}</Td>
