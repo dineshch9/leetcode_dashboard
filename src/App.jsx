@@ -1,7 +1,7 @@
 import { ChakraProvider, Container, Box } from '@chakra-ui/react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
+
 import ContestStats from './pages/ContestStats';
 
 function App() {
@@ -12,8 +12,7 @@ function App() {
           <Navbar />
           <Container maxW="container.xl" py={8}>
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/contest" element={<ContestStats />} />
+              <Route path="/" element={<ContestStats />} />
             </Routes>
           </Container>
         </Box>

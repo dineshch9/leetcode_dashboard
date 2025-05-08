@@ -83,7 +83,13 @@ function ContestStats() {
           const workbook = XLSX.read(data, { type: 'array' });
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          let jsonData = XLSX.utils.sheet_to_json(worksheet);
+          
+          // Trim usernames
+          jsonData = jsonData.map(row => ({
+            ...row,
+            username: row.username?.trim() || ''
+          }));
 
           if (!jsonData.length || !jsonData[0].username || !jsonData[0].name) {
             throw new Error('Invalid Excel format. Please ensure the file has "name" and "username" columns.');
@@ -157,7 +163,7 @@ function ContestStats() {
       setActiveCount(0);
       setTotalCount(0);
       let allScores = [];
-      const usernames = excelData.map(row => row.username);
+      const usernames = excelData.map(row => row.username.trim());
       const batchSize = 15; // You can adjust this size
       let batchCount = Math.ceil(usernames.length / batchSize);
       let batchResults = [];
