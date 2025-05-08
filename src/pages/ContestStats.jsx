@@ -18,6 +18,7 @@ import {
   HStack,
   Text,
 } from '@chakra-ui/react';
+import Loader from '../components/Loader';
 import axios from 'axios';
 import * as XLSX from 'xlsx';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Line, ReferenceLine, LineChart } from 'recharts';
@@ -26,6 +27,7 @@ import { FaDownload } from 'react-icons/fa';
 function ContestStats() {
   const [scores, setScores] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
   const [excelData, setExcelData] = useState(null);
   const [activeCount, setActiveCount] = useState(0);
@@ -169,13 +171,8 @@ function ContestStats() {
       let batchResults = [];
       for (let i = 0; i < batchCount; i++) {
         const batch = usernames.slice(i * batchSize, (i + 1) * batchSize);
-        // Show progress toast
-        toast({
-          title: `Processing batch ${i + 1} of ${batchCount}`,
-          status: 'info',
-          duration: 1500,
-          isClosable: true,
-        });
+        // Update progress after batch is processed
+        setProgress(Math.round((i / batchCount) * 100));
         try {
           const response = await axios.post('https://leetcode-server-seven.vercel.app/api/users/scores', { usernames: batch });
         
@@ -204,6 +201,9 @@ function ContestStats() {
       const validUsers = batchResults.filter(u => !u.userNotFound && typeof u.customScore === 'number');
       setActiveCount(validUsers.filter(u => u.isActive).length);
       setTotalCount(validUsers.length);
+      // Set progress to 100% after all batches are processed
+      setProgress(100);
+
       const rankedScores = batchResults
         .sort((a, b) => {
           if (a.userNotFound && !b.userNotFound) return 1;
@@ -380,7 +380,10 @@ function ContestStats() {
         </Box>
       )}
       {loading ? (
-        <Skeleton height="400px" />
+        <>
+          <Loader progress={progress} />
+          <Skeleton height="400px" />
+        </>
       ) : scores.length > 0 ? (
         <Table variant="simple">
           <Thead>
