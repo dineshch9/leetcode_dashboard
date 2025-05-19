@@ -252,7 +252,7 @@ function ContestStats() {
   return (
     <VStack spacing={8} align="stretch" p={8}>
       <Box>
-        <Heading size="xl" mb={6}>LeetCode Contest Rankings</Heading>
+        <Heading size="xl" mb={6}>LeetCode Rankings</Heading>
         <HStack spacing={4} mb={6}>
           <Input
             type="file"

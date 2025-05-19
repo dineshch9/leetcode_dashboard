@@ -16,7 +16,7 @@ function Navbar() {
             cursor="pointer"
             onClick={() => navigate('/')}
           >
-            LeetCode Contest Viewer
+            LeetCode Performance Tracker
           </Heading>
         </Flex>
       </Container>
