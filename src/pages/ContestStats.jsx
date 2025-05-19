@@ -32,7 +32,7 @@ function ContestStats() {
   const [excelData, setExcelData] = useState(null);
   const [activeCount, setActiveCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
-  const [summaryStats, setSummaryStats] = useState({ avg: 0, median: 0, top: 0 });
+  const [summaryStats, setSummaryStats] = useState({ avg: 0, median: 0, top: 0, contestParticipants: 0 });
   const [scoreDist, setScoreDist] = useState([]);
   const toast = useToast();
 
@@ -41,7 +41,7 @@ function ContestStats() {
     // Only include valid users for stats
     const validUsers = scoreArr.filter(u => !u.userNotFound && typeof u.customScore === 'number');
     if (!validUsers.length) {
-      setSummaryStats({ avg: 0, median: 0, top: 0 });
+      setSummaryStats({ avg: 0, median: 0, top: 0, contestParticipants: 0 });
       setScoreDist([]);
       return;
     }
@@ -51,7 +51,8 @@ function ContestStats() {
       ((scoresOnly[scoresOnly.length/2-1] + scoresOnly[scoresOnly.length/2]) / 2).toFixed(2) :
       scoresOnly[Math.floor(scoresOnly.length/2)].toFixed(2);
     const top = scoresOnly[scoresOnly.length-1];
-    setSummaryStats({ avg, median, top });
+    const contestParticipants = validUsers.filter(u => u.customScore > 0).length;
+    setSummaryStats({ avg, median, top, contestParticipants });
     // Histogram bins (fixed interval of 100)
     const min = Math.min(...scoresOnly);
     const max = Math.max(...scoresOnly);
@@ -377,6 +378,7 @@ function ContestStats() {
             <Box><Text fontWeight="bold">Average</Text><Text>{summaryStats.avg}</Text></Box>
             <Box><Text fontWeight="bold">Median</Text><Text>{summaryStats.median}</Text></Box>
             <Box><Text fontWeight="bold">Top Score</Text><Text>{summaryStats.top}</Text></Box>
+            <Box><Text fontWeight="bold">Contest Participants</Text><Text>{summaryStats.contestParticipants}</Text></Box>
           </HStack>
         </Box>
       )}
@@ -402,7 +404,7 @@ function ContestStats() {
           </Thead>
           <Tbody>
             {scores.map((user) => (
-              <Tr key={user.username}>
+              <Tr key={user.username} bg={user.isActive ? "green.50" : undefined}>
                 <Td>{user.rank}</Td>
                 <Td>{user.name}</Td>
                 <Td>{user.username}</Td>
