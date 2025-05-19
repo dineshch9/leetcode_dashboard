@@ -402,7 +402,7 @@ function ContestStats() {
           </Thead>
           <Tbody>
             {scores.map((user) => (
-              <Tr key={user.username} bg={!user.userNotFound && user.isActive ? "green.50" : undefined}>
+              <Tr key={user.username}>
                 <Td>{user.rank}</Td>
                 <Td>{user.name}</Td>
                 <Td>{user.username}</Td>
